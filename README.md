@@ -95,7 +95,7 @@ errors (401 / 422 / 429) surface immediately.
 
 ## Doctrine
 
-This SDK is bound by the parent repo's `DOCTRINE.md`:
+This SDK is bound by Quesen's published design principles (see [Shxnque/quesen](https://github.com/Shxnque/quesen)):
 
 - **§2 determinism** — never adds randomness, never adds an LLM in the loop.
 - **§11 ecosystem neutrality** — zero runtime dependencies.

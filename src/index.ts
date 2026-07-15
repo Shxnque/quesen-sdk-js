@@ -4,7 +4,7 @@
  * Deterministic-first design. This SDK is a THIN wrapper over the Quesen HTTP
  * API. It contains ZERO business logic. Every response is a plain, typed record.
  *
- * Doctrine anchors (parent repo Shxnque/Quesen-sib DOCTRINE.md):
+ * Design principles (published at https://github.com/Shxnque/quesen):
  *   §1  Priority: revenue > adoption > determinism.
  *   §2  No randomness, no ML, no prompts. This SDK never introduces any.
  *   §11 Ecosystem neutrality: no framework lock-in, zero runtime deps.
