@@ -1,7 +1,7 @@
 {
   "name": "quesen-sdk",
-  "version": "0.1.0",
-  "description": "Official JavaScript / TypeScript SDK for Quesen \u2014 the deterministic AI decision engine for autonomous-agent risk evaluation.",
+  "version": "0.2.0",
+  "description": "Official JavaScript / TypeScript SDK for Quesen — the deterministic AI decision engine for autonomous-agent risk evaluation.",
   "keywords": [
     "quesen",
     "a2a",

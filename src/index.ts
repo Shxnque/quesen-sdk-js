@@ -4,6 +4,9 @@
  * Deterministic-first design. This SDK is a THIN wrapper over the Quesen HTTP
  * API. It contains ZERO business logic. Every response is a plain, typed record.
  *
+ * v0.2.0 tracks engine v1.10.0 (ADR-041 receipt provenance): every
+ * `ValidateResult` now surfaces `input_snapshot_hash` and `commit_sha`.
+ *
  * Design principles (published at https://github.com/Shxnque/quesen):
  *   §1  Priority: revenue > adoption > determinism.
  *   §2  No randomness, no ML, no prompts. This SDK never introduces any.
@@ -43,4 +46,4 @@ export type {
   Outcome,
 } from "./types.js";
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
