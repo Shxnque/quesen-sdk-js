@@ -21,8 +21,12 @@ if (verdict.decision === "SKIP") return; // respect the deterministic answer
 ```
 
 > **Why deterministic?** No LLM, no randomness. Same input in, same decision out.
-> Every response embeds `engine_version`, `weights`, and `thresholds` — fully
-> replayable audit trail.
+> Every response embeds `engine_version`, `weights`, `thresholds`, plus (v1.10+)
+> `input_snapshot_hash` and `commit_sha` for self-contained replay.
+
+---
+
+**Status:** v0.2.0 · tracks Quesen engine v1.10.0 · backward compatible with every deployed engine version.
 
 ---
 
@@ -38,9 +42,49 @@ npm i quesen-sdk           # or: yarn add quesen-sdk / bun add quesen-sdk
 
 - **`.health()`** — liveness probe.
 - **`.version()`** — engine + report_schema versions + weights + thresholds + feature flags.
-- **`.validate(input)`** — the main decision endpoint.
+- **`.validate(input)`** — the main decision endpoint. Response carries `input_snapshot_hash` + `commit_sha` against v1.10+ engines.
 - **`.simulate(input)`** — counterfactual scoring with `weights_override` / `thresholds_override`.
 - **`.report(input)`** — post-decision outcome feedback (v1.1 schema with `realized_pnl`, `venue`, etc.).
+
+### Receipt provenance (v1.10, tracked in SDK v0.2.0)
+
+```ts
+const verdict = await q.validate({
+  domain_age_days: 1,
+  engagement_ratio: 0.95,
+  scam_keyword_count: 4,
+});
+
+console.log(verdict.input_snapshot_hash);
+// e.g. "2b0a…" — 64-char lowercase SHA-256 hex over canonical-JSON of the request
+//                 (with client_request_id excluded from hash material)
+console.log(verdict.commit_sha);
+// e.g. "0b77cf…" — 40-char lowercase git SHA of Shxnque/quesen HEAD at decision
+//                    time, or the sentinel "unknown"
+```
+
+Client-side reconstruction (verify the engine evaluated exactly what you sent):
+
+```ts
+async function inputSnapshotHash(payload: Record<string, unknown>): Promise<string> {
+  const toHash: Record<string, unknown> = {};
+  const keys = Object.keys(payload).sort();
+  for (const k of keys) {
+    if (k === "client_request_id") continue;
+    if (payload[k] === null || payload[k] === undefined) continue;
+    toHash[k] = payload[k];
+  }
+  const canonical = JSON.stringify(toHash);
+  const bytes = new TextEncoder().encode(canonical);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+```
+
+**Backward compatibility.** Both fields are typed as `string | undefined`. Against
+a pre-v1.10 engine they simply won't be set; type-checking stays clean.
 
 ### v1.5.0 on-chain enrichment (optional)
 
@@ -59,19 +103,6 @@ if (verdict.onchain_enrichment?.holder_concentration.top1_share ?? 0 > 0.6) {
   // Read the enrichment on the client side too if you want extra logging.
 }
 ```
-
-Fields returned inside `onchain_enrichment`:
-
-- `chain`, `chain_id`, `contract_address`
-- `has_code`, `contract_age_days`
-- `source_verification.is_verified` (Blockscout)
-- `proxy.is_proxy`, `proxy.implementation_address` (EIP-1967)
-- `ownership.owner_address`, `ownership.renounced`
-- `holder_concentration.top1_share`, `.top5_share`, `.top10_share`
-- `status`, `probes_run`, `probes_skipped`, `errors`
-
-Every field is either a concrete value OR `null` with a populated
-`unknown_reason` — no ambiguous states.
 
 ---
 
@@ -100,6 +131,7 @@ This SDK is bound by Quesen's published design principles (see [Shxnque/quesen](
 - **§2 determinism** — never adds randomness, never adds an LLM in the loop.
 - **§11 ecosystem neutrality** — zero runtime dependencies.
 - **§12 anti-bureaucracy** — one client, one file, one intent.
+- **Receipt provenance forwarded** — `input_snapshot_hash` + `commit_sha` typed on `ValidateResult` (v0.2.0+).
 
 ---
 

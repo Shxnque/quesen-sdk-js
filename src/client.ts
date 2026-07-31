@@ -83,7 +83,7 @@ export class QuesenClient {
     const h: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
-      "User-Agent": "quesen-sdk-js/0.1.0",
+      "User-Agent": "quesen-sdk-js/0.2.0",
     };
     if (this.apiKey) h["X-API-Key"] = this.apiKey;
     if (clientRequestId) h["X-Request-ID"] = clientRequestId;

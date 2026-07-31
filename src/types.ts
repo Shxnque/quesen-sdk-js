@@ -1,9 +1,12 @@
 /**
- * Typed response records for the Quesen HTTP API v1.5.0.
+ * Typed response records for the Quesen HTTP API.
  *
  * Every field mirrors the FastAPI Pydantic models exactly. If the server ever
  * ships a new optional field, the SDK forwards it verbatim (index signature at
  * the tail of each interface where appropriate) rather than dropping it.
+ *
+ * v0.2.0 tracks engine v1.10.0 (ADR-041 receipt provenance):
+ *   ValidateResult now carries `input_snapshot_hash` and `commit_sha`.
  */
 
 export type Decision = "PROCEED" | "REVIEW" | "SKIP";
@@ -89,6 +92,13 @@ export interface ValidateResult {
   client_request_id?: string | null;
   key_owner?: string | null;
   onchain_enrichment?: OnchainEnrichment | null;
+  /**
+   * v1.10.0 (ADR-041) receipt provenance pair. Always present on live engines
+   * running v1.10.0+. Marked optional here so callers hitting a pre-v1.10
+   * engine keep type-checking cleanly.
+   */
+  input_snapshot_hash?: string;
+  commit_sha?: string;
 }
 
 export interface SimulateInput extends ValidateInput {

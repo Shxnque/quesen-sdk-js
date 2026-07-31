@@ -202,3 +202,74 @@ describe("QuesenClient.report", () => {
     expect(calls[0].init.body).toContain("base:uniswap-v3");
   });
 });
+
+describe("QuesenClient.validate v1.10 receipt provenance", () => {
+  it("surfaces input_snapshot_hash and commit_sha as typed fields", async () => {
+    const { fetch } = makeMockFetch(() => ({
+      status: 200,
+      body: {
+        decision: "SKIP",
+        risk_score: 0.98,
+        confidence: 1.0,
+        conflict_triggers: ["R1"],
+        latency_ms: 3,
+        request_id: "abc",
+        engine_version: "1.10.0",
+        weights: { domain_age: 0.4, engagement: 0.35, scam_keywords: 0.25 },
+        thresholds: { skip: 0.65, review: 0.35 },
+        input_snapshot_hash: "e".repeat(64),
+        commit_sha: "0".repeat(40),
+      },
+    }));
+    const c = new QuesenClient({ baseUrl: "https://api.example", fetch });
+    const r = await c.validate({ domain_age_days: 1, engagement_ratio: 0.95, scam_keyword_count: 4 });
+    expect(typeof r.input_snapshot_hash).toBe("string");
+    expect(r.input_snapshot_hash).toHaveLength(64);
+    expect(typeof r.commit_sha).toBe("string");
+    expect(r.commit_sha).toHaveLength(40);
+  });
+
+  it("accepts responses from pre-v1.10 engines that omit provenance fields", async () => {
+    const { fetch } = makeMockFetch(() => ({
+      status: 200,
+      body: {
+        decision: "PROCEED",
+        risk_score: 0.1,
+        confidence: 1.0,
+        conflict_triggers: [],
+        latency_ms: 1,
+        request_id: "abc",
+        engine_version: "1.9.0",
+        weights: { domain_age: 0.4, engagement: 0.35, scam_keywords: 0.25 },
+        thresholds: { skip: 0.65, review: 0.35 },
+      },
+    }));
+    const c = new QuesenClient({ baseUrl: "https://api.example", fetch });
+    const r = await c.validate({ domain_age_days: 800 });
+    expect(r.decision).toBe("PROCEED");
+    expect(r.input_snapshot_hash).toBeUndefined();
+    expect(r.commit_sha).toBeUndefined();
+  });
+
+  it("commit_sha sentinel 'unknown' is a valid engine response", async () => {
+    const { fetch } = makeMockFetch(() => ({
+      status: 200,
+      body: {
+        decision: "REVIEW",
+        risk_score: 0.5,
+        confidence: 1.0,
+        conflict_triggers: [],
+        latency_ms: 2,
+        request_id: "abc",
+        engine_version: "1.10.0",
+        weights: { domain_age: 0.4, engagement: 0.35, scam_keywords: 0.25 },
+        thresholds: { skip: 0.65, review: 0.35 },
+        input_snapshot_hash: "f".repeat(64),
+        commit_sha: "unknown",
+      },
+    }));
+    const c = new QuesenClient({ baseUrl: "https://api.example", fetch });
+    const r = await c.validate({ domain_age_days: 60 });
+    expect(r.commit_sha).toBe("unknown");
+  });
+});
