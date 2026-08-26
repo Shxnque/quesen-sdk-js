@@ -42,6 +42,17 @@ interface RawErrorBody {
   detail?: string | { msg: string }[];
 }
 
+/** Response shape from `POST /sandbox/keys`. */
+export interface SandboxKeyResponse {
+  api_key: string;
+  tier: string;
+  price_per_call: number;
+  rate_limit_per_min: number;
+  starter_credits: number;
+  engine_version: string;
+  [k: string]: unknown;
+}
+
 /**
  * Small deterministic sleep helper. Uses `setTimeout` so it works in every
  * runtime that supports `fetch`.
@@ -52,7 +63,7 @@ function sleep(ms: number): Promise<void> {
 
 export class QuesenClient {
   readonly baseUrl: string;
-  readonly apiKey?: string;
+  apiKey?: string;
   readonly timeoutMs: number;
   readonly retries: number;
   readonly retryBackoffMs: number;
@@ -84,7 +95,7 @@ export class QuesenClient {
     const h: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
-      "User-Agent": "quesen-sdk-js/0.3.0",
+      "User-Agent": "quesen-sdk-js/0.4.0",
     };
     if (this.apiKey) h["X-API-Key"] = this.apiKey;
     if (clientRequestId) h["X-Request-ID"] = clientRequestId;
@@ -168,6 +179,20 @@ export class QuesenClient {
 
   version(): Promise<Record<string, unknown>> {
     return this._request("GET", "/version");
+  }
+
+  /**
+   * Self-serve a FREE, rate-limited sandbox API key — no signup, no card.
+   *
+   * Wraps `POST /sandbox/keys` and, by default, configures *this* client to use
+   * the returned key for every subsequent call, so a fresh developer goes from
+   * install to a real deterministic decision without hunting for an
+   * undocumented key-minting step. Returns the full response.
+   */
+  async createSandboxKey(setOnClient = true): Promise<SandboxKeyResponse> {
+    const data = await this._request<SandboxKeyResponse>("POST", "/sandbox/keys", {});
+    if (setOnClient && data.api_key) this.apiKey = data.api_key;
+    return data;
   }
 
   validate(input: ValidateInput): Promise<ValidateResult> {

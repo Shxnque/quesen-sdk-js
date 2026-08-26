@@ -4,6 +4,24 @@ All notable changes to `quesen-sdk` (JavaScript / TypeScript) will be documented
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-08-27 · QuesenFirewall + frictionless onboarding (parity with Python 0.4.1)
+
+### Added
+- **`QuesenFirewall`** — one-call agent-firewall surface mirroring the Python SDK:
+  `fw.requirePass({ agent, action: "send_data", target, dataClass: "secret" })`
+  throws `TscBlockedError` on anything but PASS. Friendly `action` aliases route
+  to the correct TSC builder (egress / payment / tool_call).
+- **`QuesenFirewall.sandbox(baseUrl)`** — zero-config entry point that mints a FREE
+  sandbox key automatically, so a fresh developer goes from `npm i` to a real
+  deterministic BLOCK in one call (no signup, no card, no undocumented key step).
+- **`QuesenClient.createSandboxKey()`** — wraps `POST /sandbox/keys`; by default
+  applies the returned key to the client for subsequent calls.
+
+### Fixed
+- Onboarding blocker: the hosted engine requires a key (no open mode); the SDK
+  now self-serves one. README quickstart rewritten to the true onboarding path.
+- `User-Agent` bumped `quesen-sdk-js/0.3.0` → `0.4.0`.
+
 ## [0.3.0] — 2026-08-26 · TSC v2 agent firewall (tracks engine v1.10.0 + ADR-042)
 
 ### Added

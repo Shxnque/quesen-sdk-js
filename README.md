@@ -26,7 +26,7 @@ if (verdict.decision === "SKIP") return; // respect the deterministic answer
 
 ---
 
-**Status:** v0.3.0 · tracks Quesen engine v1.10.0 (+ TSC v2 agent firewall) · backward compatible with every deployed engine version.
+**Status:** v0.4.0 · tracks Quesen engine v1.10.0 (+ TSC v2 agent firewall) · backward compatible with every deployed engine version.
 
 ---
 
@@ -38,15 +38,54 @@ npm i quesen-sdk           # or: yarn add quesen-sdk / bun add quesen-sdk
 
 ---
 
+## 30-second agent firewall (copy-paste, no signup)
+
+`QuesenFirewall.sandbox()` self-serves a **free** sandbox key (no signup, no card),
+so this runs as-is against the hosted engine:
+
+```ts
+import { QuesenFirewall, TscBlockedError } from "quesen-sdk";
+
+const fw = await QuesenFirewall.sandbox("https://web-production-aa5ba.up.railway.app");
+
+try {
+  await fw.requirePass({
+    agent: "my-agent",
+    action: "send_data",
+    target: "https://paste.evil.example",
+    dataClass: "secret",
+  });
+  await sendTheData();                    // only runs on an explicit PASS
+} catch (e) {
+  if (e instanceof TscBlockedError) {
+    console.log(e.decision.decision);                   // 'BLOCK'
+    console.log(e.decision.reasons.map((r) => r.code)); // ['EGRESS_SECRET_UNTRUSTED']
+    console.log(e.decision.commit_sha);                 // audit-receipt ruleset pin
+  }
+}
+
+// A safe action returns PASS:
+const ok = await fw.check({ agent: "my-agent", action: "tool_call", capabilityClass: "read" });
+console.log(ok.decision);                 // 'PASS'
+```
+
+> The hosted engine **requires** a key (no open mode). `QuesenFirewall.sandbox()`
+> and `QuesenClient.createSandboxKey()` both call `POST /sandbox/keys` for a free,
+> rate-limited key. For production volume pass `apiKey: "sk_live_..."`.
+
+---
+
 ## Feature surface
 
+- **`QuesenFirewall.sandbox(baseUrl)`** — zero-config agent firewall (mints a free key).
+- **`.createSandboxKey()`** — self-serve a free sandbox key; auto-applied to the client.
 - **`.health()`** — liveness probe.
 - **`.version()`** — engine + report_schema versions + weights + thresholds + feature flags.
 - **`.validate(input)`** — the main decision endpoint. Response carries `input_snapshot_hash` + `commit_sha` against v1.10+ engines.
 - **`.simulate(input)`** — counterfactual scoring with `weights_override` / `thresholds_override`.
 - **`.report(input)`** — post-decision outcome feedback (v1.1 schema with `realized_pnl`, `venue`, etc.).
 
-### Agent Firewall (TSC v2)
+### Agent Firewall (TSC v2) — lower-level
 
 TSC v2 turns Quesen into a deterministic **agent firewall**: describe what your
 autonomous agent is *about to do* and get a `PASS` / `REVIEW` / `BLOCK` / `SKIP`
@@ -58,7 +97,8 @@ boundary.
 ```ts
 import { QuesenClient, dataEgressContext, requirePass, TscBlockedError } from "quesen-sdk";
 
-const q = new QuesenClient({ baseUrl: "https://quesen.example.com", apiKey: process.env.QUESEN_API_KEY });
+const q = new QuesenClient({ baseUrl: "https://web-production-aa5ba.up.railway.app" });
+await q.createSandboxKey();               // free key (or pass apiKey: "sk_live_...")
 
 // Agent is about to POST data somewhere — ask Quesen first.
 const decision = await q.validateTsc(

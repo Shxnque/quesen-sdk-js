@@ -16,7 +16,9 @@
  */
 
 export { QuesenClient } from "./client.js";
-export type { QuesenClientOptions } from "./client.js";
+export type { QuesenClientOptions, SandboxKeyResponse } from "./client.js";
+export { QuesenFirewall } from "./firewall.js";
+export type { FirewallCheckOpts } from "./firewall.js";
 export {
   QuesenError,
   QuesenAuthError,
@@ -70,4 +72,4 @@ export type {
   PaymentOpts,
 } from "./tsc.js";
 
-export const VERSION = "0.3.0";
+export const VERSION = "0.4.0";
