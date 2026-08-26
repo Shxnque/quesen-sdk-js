@@ -45,5 +45,29 @@ export type {
   Decision,
   Outcome,
 } from "./types.js";
+export {
+  TSC_VERSION,
+  TscBlockedError,
+  isAllowed,
+  reasonCodes,
+  requirePass,
+  dataEgressContext,
+  toolCallContext,
+  paymentContext,
+} from "./tsc.js";
+export type {
+  TscContext,
+  TscDecision,
+  TscDecisionKind,
+  TscReason,
+  TrustTier,
+  ProvenanceSource,
+  Framework,
+  DataClass,
+  CapabilityClass,
+  DataEgressOpts,
+  ToolCallOpts,
+  PaymentOpts,
+} from "./tsc.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";

@@ -26,7 +26,7 @@ if (verdict.decision === "SKIP") return; // respect the deterministic answer
 
 ---
 
-**Status:** v0.2.0 · tracks Quesen engine v1.10.0 · backward compatible with every deployed engine version.
+**Status:** v0.3.0 · tracks Quesen engine v1.10.0 (+ TSC v2 agent firewall) · backward compatible with every deployed engine version.
 
 ---
 
@@ -45,6 +45,45 @@ npm i quesen-sdk           # or: yarn add quesen-sdk / bun add quesen-sdk
 - **`.validate(input)`** — the main decision endpoint. Response carries `input_snapshot_hash` + `commit_sha` against v1.10+ engines.
 - **`.simulate(input)`** — counterfactual scoring with `weights_override` / `thresholds_override`.
 - **`.report(input)`** — post-decision outcome feedback (v1.1 schema with `realized_pnl`, `venue`, etc.).
+
+### Agent Firewall (TSC v2)
+
+TSC v2 turns Quesen into a deterministic **agent firewall**: describe what your
+autonomous agent is *about to do* and get a `PASS` / `REVIEW` / `BLOCK` / `SKIP`
+verdict plus a tamper-evident audit receipt — *before* the action crosses a trust
+boundary.
+
+> Requires an engine running with `QUESEN_TSC_V2_ENABLED=true` (`POST /tsc/validate`).
+
+```ts
+import { QuesenClient, dataEgressContext, requirePass, TscBlockedError } from "quesen-sdk";
+
+const q = new QuesenClient({ baseUrl: "https://quesen.example.com", apiKey: process.env.QUESEN_API_KEY });
+
+// Agent is about to POST data somewhere — ask Quesen first.
+const decision = await q.validateTsc(
+  dataEgressContext({
+    dataClasses: ["secret"],            // what's leaving
+    to: "https://paste.evil.example",   // where it's going
+    destinationTrust: "unverified",
+    framework: "langchain",
+  }),
+);
+
+console.log(decision.decision);                  // 'BLOCK'
+console.log(decision.reasons.map((r) => r.code)); // ['EGRESS_SECRET_UNTRUSTED']
+
+try {
+  requirePass(decision);              // throws unless PASS
+  await runTheTool();                 // only reached on PASS
+} catch (e) {
+  if (e instanceof TscBlockedError) stopAndLog(e.decision);
+}
+```
+
+Builders: `dataEgressContext(...)`, `toolCallContext(...)`, `paymentContext(...)`.
+Full [Typed Security Context schema](https://github.com/Shxnque/quesen/tree/main/docs/security-context).
+Runnable demo: [`examples/agent_firewall.ts`](examples/agent_firewall.ts).
 
 ### Receipt provenance (v1.10, tracked in SDK v0.2.0)
 
