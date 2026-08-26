@@ -23,6 +23,7 @@ import type {
   ValidateInput,
   ValidateResult,
 } from "./types.js";
+import type { TscContext, TscDecision } from "./tsc.js";
 
 export interface QuesenClientOptions {
   baseUrl: string;
@@ -83,7 +84,7 @@ export class QuesenClient {
     const h: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
-      "User-Agent": "quesen-sdk-js/0.2.0",
+      "User-Agent": "quesen-sdk-js/0.3.0",
     };
     if (this.apiKey) h["X-API-Key"] = this.apiKey;
     if (clientRequestId) h["X-Request-ID"] = clientRequestId;
@@ -179,5 +180,22 @@ export class QuesenClient {
 
   report(input: ReportInput): Promise<ReportResult> {
     return this._request<ReportResult>("POST", "/report", input, input.client_request_id);
+  }
+
+  /**
+   * Agent firewall: evaluate a Typed Security Context (TSC v2).
+   *
+   * Returns a deterministic PASS / REVIEW / BLOCK / SKIP decision plus an audit
+   * receipt. Requires an engine running with `QUESEN_TSC_V2_ENABLED=true`;
+   * against an engine without the flag the route is absent (404) and this
+   * rejects, fail-closed. Use `requirePass()` / `isAllowed()` from `./tsc`.
+   */
+  validateTsc(context: TscContext): Promise<TscDecision> {
+    return this._request<TscDecision>(
+      "POST",
+      "/tsc/validate",
+      context,
+      context.client_request_id,
+    );
   }
 }

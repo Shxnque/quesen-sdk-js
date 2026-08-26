@@ -4,6 +4,25 @@ All notable changes to `quesen-sdk` (JavaScript / TypeScript) will be documented
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-08-26 · TSC v2 agent firewall (tracks engine v1.10.0 + ADR-042)
+
+### Added
+- **`client.validateTsc(context)`** — calls the engine's `POST /tsc/validate`
+  route and returns a typed **`TscDecision`** (`PASS` / `REVIEW` / `BLOCK` /
+  `SKIP`) with the full audit receipt (`risk_score`, `confidence`, `reasons`,
+  `tags`, `engine_version`, `commit_sha`, `input_snapshot_hash`, `request_id`).
+- **`quesen-sdk` TSC surface**: `dataEgressContext`, `toolCallContext`,
+  `paymentContext` builders; `TscContext` / `TscDecision` / `TscReason` types;
+  `isAllowed`, `reasonCodes`, `requirePass` helpers; `TscBlockedError`.
+- Example `examples/agent_firewall.ts`; self-contained `tests/tsc.test.ts`.
+
+### Changed
+- `VERSION` `0.2.0` → `0.3.0`; User-Agent → `quesen-sdk-js/0.3.0`.
+
+### Backward compatibility
+- Fully additive; all v1 methods and types unchanged. `validateTsc` is inert
+  against engines without `QUESEN_TSC_V2_ENABLED` (route absent → rejects).
+
 ## [0.2.0] — 2026-07-31 · Receipt provenance (tracks engine v1.10.0)
 
 ### Added
