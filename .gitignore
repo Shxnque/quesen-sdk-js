@@ -7,3 +7,8 @@ dist/
 !.env.example
 coverage/
 .vitest-cache/
+.venv/
+dist/
+node_modules/
+__pycache__/
+*.egg-info/
