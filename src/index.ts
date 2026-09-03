@@ -72,4 +72,11 @@ export type {
   PaymentOpts,
 } from "./tsc.js";
 
-export const VERSION = "0.4.0";
+export {
+  verifyReceipt,
+  requireReceipt,
+  canonicalReceiptBytes,
+} from "./receipt.js";
+export type { ReceiptVerification } from "./receipt.js";
+
+export const VERSION = "0.5.0";

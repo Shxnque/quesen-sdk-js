@@ -129,4 +129,32 @@ export class QuesenFirewall {
   async requirePass(opts: FirewallCheckOpts): Promise<TscDecision> {
     return requirePass(await this.check(opts));
   }
+
+  /**
+   * Enforcement mode: wrap an async function so it is *gated*, not merely advised.
+   * The wrapped callable does not execute unless the engine returns PASS
+   * (fail-closed on BLOCK/REVIEW/SKIP and on transport error). The last verdict
+   * is exposed as `wrapped.lastDecision` for auditing.
+   *
+   *   const sendFunds = fw.guard(
+   *     { action: "payment", trustTier: "unverified" },
+   *     async (to: string, amount: number) => { ...  }
+   *   );
+   *   await sendFunds("0xabc", 5); // throws TscBlockedError unless PASS
+   */
+  guard<A extends unknown[], R>(
+    opts: FirewallCheckOpts,
+    fn: (...args: A) => Promise<R>,
+  ): ((...args: A) => Promise<R>) & { lastDecision: TscDecision | null } {
+    const self = this;
+    type Guarded = ((...args: A) => Promise<R>) & { lastDecision: TscDecision | null };
+    const wrapped = (async (...args: A): Promise<R> => {
+      const decision = await self.check(opts);
+      wrapped.lastDecision = decision;
+      requirePass(decision); // throws on anything but PASS
+      return fn(...args);
+    }) as unknown as Guarded;
+    wrapped.lastDecision = null;
+    return wrapped;
+  }
 }
