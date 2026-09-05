@@ -4,6 +4,29 @@ All notable changes to `quesen-sdk` (JavaScript / TypeScript) will be documented
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-09-05 · Offline verdict replay (recomputability before adoption)
+
+### Added
+- **`replay(context)`** — recompute the TSC v2 egress/authority verdict
+  `{decision, reason_codes, input_snapshot_hash}` **entirely offline, zero network,
+  zero dependency** (Node built-in crypto only), from a TypeScript port of the public
+  reference evaluator (`src/reference.ts`). Byte-for-byte identical to the Python SDK
+  and the engine — verified against the live engine for BLOCK / REVIEW / PASS shapes.
+- **`verifyReceipt(receipt, { recomputeRequest })`** — independently REPLAY the verdict
+  offline and assert it matches the receipt; `ReceiptVerification` gains a `recomputed`
+  field. A mismatch flips `ok` to `false` (fail-closed via `requireReceipt`).
+- Also exported: `referenceEvaluate`, `referenceNormalize`, `referenceCanonicalJson`,
+  `referenceInputSnapshotHash`, `TscReferenceError`, `REFERENCE_VERSION`.
+- Answers BEA criticism-ledger C-003 (sequant) / C-004 (loopx) in the JS ecosystem:
+  the hosted engine becomes an optimisation, not a trust dependency, for this subset.
+
+## [0.5.0] — 2026-09-03 · Enforcement + independently-verifiable receipts
+
+### Added
+- **`QuesenFirewall.guard(...)`** — fail-closed enforcement wrapper (parity with Python).
+- **`verifyReceipt` / `requireReceipt` / `canonicalReceiptBytes`** — client-side receipt
+  verification: structural integrity plus optional Ed25519 signature check via Node crypto.
+
 ## [0.4.0] — 2026-08-27 · QuesenFirewall + frictionless onboarding (parity with Python 0.4.1)
 
 ### Added

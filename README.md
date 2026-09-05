@@ -125,6 +125,29 @@ Builders: `dataEgressContext(...)`, `toolCallContext(...)`, `paymentContext(...)
 Full [Typed Security Context schema](https://github.com/Shxnque/quesen/tree/main/docs/security-context).
 Runnable demo: [`examples/agent_firewall.ts`](examples/agent_firewall.ts).
 
+### Offline verdict replay — recompute without trusting us (v0.6.0)
+
+Recompute the decision on the caller's machine — **zero network, zero dependency** (Node's
+built-in crypto only) — and assert a live receipt is independently reproducible. This is the
+JS-ecosystem answer to the adoption blocker serious integrators kept raising.
+
+```ts
+import { replay, verifyReceipt, dataEgressContext, QuesenFirewall } from "quesen-sdk";
+
+const local = replay(dataEgressContext({ dataClasses: ["secret"], to: "https://x" }));
+// { ok: true, decision: "BLOCK", reason_codes: ["EGRESS_SECRET_UNTRUSTED"], input_snapshot_hash: "<sha256>" }
+
+const fw = await QuesenFirewall.sandbox("https://<engine>");
+const ctx = dataEgressContext({ dataClasses: ["secret"], to: "https://x" });
+const decision = await fw.check({ action: "send_data", target: "https://x", dataClass: "secret" });
+const v = verifyReceipt(decision, { recomputeRequest: ctx });
+v.recomputed; // true -> decision + reasons + input_snapshot_hash reproduced offline
+```
+
+Byte-for-byte identical to the Python SDK and the engine (a parity test binds the reference
+to the engine). Reproduces the **contract-level** decision/reasons/hash for the
+egress/authority subset — not the production risk weighting/thresholds.
+
 ### Receipt provenance (v1.10, tracked in SDK v0.2.0)
 
 ```ts

@@ -79,4 +79,15 @@ export {
 } from "./receipt.js";
 export type { ReceiptVerification } from "./receipt.js";
 
-export const VERSION = "0.5.0";
+export { replay } from "./replay.js";
+export {
+  evaluate as referenceEvaluate,
+  normalize as referenceNormalize,
+  canonicalJson as referenceCanonicalJson,
+  inputSnapshotHash as referenceInputSnapshotHash,
+  TscReferenceError,
+  REFERENCE_VERSION,
+} from "./reference.js";
+export type { ReferenceResult } from "./reference.js";
+
+export const VERSION = "0.6.0";
