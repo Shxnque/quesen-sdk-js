@@ -46,7 +46,7 @@ so this runs as-is against the hosted engine:
 ```ts
 import { QuesenFirewall, TscBlockedError } from "quesen-sdk";
 
-const fw = await QuesenFirewall.sandbox("https://web-production-aa5ba.up.railway.app");
+const fw = await QuesenFirewall.sandbox("https://web-production-3df26.up.railway.app");
 
 try {
   await fw.requirePass({
@@ -97,7 +97,7 @@ boundary.
 ```ts
 import { QuesenClient, dataEgressContext, requirePass, TscBlockedError } from "quesen-sdk";
 
-const q = new QuesenClient({ baseUrl: "https://web-production-aa5ba.up.railway.app" });
+const q = new QuesenClient({ baseUrl: "https://web-production-3df26.up.railway.app" });
 await q.createSandboxKey();               // free key (or pass apiKey: "sk_live_...")
 
 // Agent is about to POST data somewhere — ask Quesen first.
