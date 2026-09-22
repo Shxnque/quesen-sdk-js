@@ -1,5 +1,7 @@
 # quesen-sdk (JavaScript / TypeScript)
 
+> Deterministic **AI agent authorization & governance** — a portable decision + authority + evidence layer (runtime authorization for agent tool calls, MCP tool authorization, agent payment authorization) returning PASS/REVIEW/BLOCK/SKIP with machine reason codes and replayable audit receipts.
+
 Official Quesen SDK for Node 18+, Bun, Deno, and modern browsers. Zero runtime
 dependencies. Same 3-line integration pattern as every other Quesen SDK:
 
