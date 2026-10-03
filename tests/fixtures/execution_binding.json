@@ -1,0 +1,133 @@
+{
+  "_about": "Execution-binding (Directive §6) cross-language vectors. canonical_action_bytes = Rule-A canonical JSON of {subject,action,target,parameters} (recursive key-sort, compact, UTF-8, null-omitted). action_hash = 'sha256:'+hex. Engine quesen.evidence, python quesen_sdk.execution, and JS execution.ts MUST all reproduce these byte-for-byte.",
+  "action_fields": [
+    "subject",
+    "action",
+    "target",
+    "parameters"
+  ],
+  "vectors": [
+    {
+      "name": "buy_order",
+      "action": {
+        "subject": {
+          "agent_id": "agent-7",
+          "principal": "acme"
+        },
+        "action": "payment.execute",
+        "target": "https://vendor.example/api",
+        "parameters": {
+          "amount": "4812.00",
+          "currency": "USDC",
+          "qty": 17,
+          "vendor": "X"
+        }
+      },
+      "canonical_action_bytes_utf8": "{\"action\":\"payment.execute\",\"parameters\":{\"amount\":\"4812.00\",\"currency\":\"USDC\",\"qty\":17,\"vendor\":\"X\"},\"subject\":{\"agent_id\":\"agent-7\",\"principal\":\"acme\"},\"target\":\"https://vendor.example/api\"}",
+      "action_hash": "sha256:fbb2813732aee4cb16896ecd2b16923e8ff0750d1b1418f2fff1b796ae1ed392"
+    },
+    {
+      "name": "send_data",
+      "action": {
+        "subject": "svc-a",
+        "action": "egress.send",
+        "target": "https://sink.example",
+        "parameters": {
+          "data_class": "secret",
+          "bytes": 2048
+        }
+      },
+      "canonical_action_bytes_utf8": "{\"action\":\"egress.send\",\"parameters\":{\"bytes\":2048,\"data_class\":\"secret\"},\"subject\":\"svc-a\",\"target\":\"https://sink.example\"}",
+      "action_hash": "sha256:f39e36b3cecfcd047f536542e158469afe35876ffc4d260b9beff8beade4c123"
+    },
+    {
+      "name": "unicode_tool",
+      "action": {
+        "action": "tool.call",
+        "target": "fs.write",
+        "parameters": {
+          "path": "/tmp/café",
+          "note": "naïve ☕"
+        }
+      },
+      "canonical_action_bytes_utf8": "{\"action\":\"tool.call\",\"parameters\":{\"note\":\"naïve ☕\",\"path\":\"/tmp/café\"},\"target\":\"fs.write\"}",
+      "action_hash": "sha256:025b136cfc0df559d781d0aa33f27d845a9a749d2e90d10b7978a6226c801596"
+    },
+    {
+      "name": "null_omitted",
+      "action": {
+        "subject": "s1",
+        "action": "noop",
+        "target": null,
+        "parameters": {
+          "k": "v"
+        }
+      },
+      "canonical_action_bytes_utf8": "{\"action\":\"noop\",\"parameters\":{\"k\":\"v\"},\"subject\":\"s1\"}",
+      "action_hash": "sha256:57eecfdc33a7dea6454eb6e23abd7e288c9e647a5a4407eb224d02d40dd63184"
+    },
+    {
+      "name": "nested_sort",
+      "action": {
+        "action": "a",
+        "parameters": {
+          "z": 1,
+          "a": {
+            "y": 2,
+            "b": 3
+          },
+          "m": [
+            3,
+            2,
+            1
+          ]
+        }
+      },
+      "canonical_action_bytes_utf8": "{\"action\":\"a\",\"parameters\":{\"a\":{\"b\":3,\"y\":2},\"m\":[3,2,1],\"z\":1}}",
+      "action_hash": "sha256:691f462a4a5981cf005797c599d6e746ee3b985d522bf3e58b86f5501f211522"
+    }
+  ],
+  "binding_example": {
+    "receipt": {
+      "decision": "PASS",
+      "input_snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "commit_sha": "deadbeef",
+      "reasons": [
+        {
+          "code": "OK"
+        }
+      ]
+    },
+    "action": {
+      "subject": {
+        "agent_id": "agent-7",
+        "principal": "acme"
+      },
+      "action": "payment.execute",
+      "target": "https://vendor.example/api",
+      "parameters": {
+        "amount": "4812.00",
+        "currency": "USDC",
+        "qty": 17,
+        "vendor": "X"
+      }
+    },
+    "execution_evidence": {
+      "executed": true,
+      "outcome": "performed",
+      "execution_binding": "sha256:fbb2813732aee4cb16896ecd2b16923e8ff0750d1b1418f2fff1b796ae1ed392",
+      "authorization_input_snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "authorization_decision": "PASS",
+      "executed_at": "2026-10-02T12:00:00Z"
+    },
+    "verify_ok_expected": {
+      "ok": true,
+      "bound": true,
+      "linked": true
+    },
+    "verify_tampered_action_expected": {
+      "ok": false,
+      "bound": false
+    }
+  }
+}

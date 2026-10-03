@@ -81,6 +81,13 @@ export type { ReceiptVerification } from "./receipt.js";
 
 export { replay } from "./replay.js";
 export {
+  canonicalActionBytes,
+  actionHash,
+  ruleACanonical,
+  verifyExecutionBinding,
+} from "./execution.js";
+export type { BindingVerification } from "./execution.js";
+export {
   evaluate as referenceEvaluate,
   normalize as referenceNormalize,
   canonicalJson as referenceCanonicalJson,
