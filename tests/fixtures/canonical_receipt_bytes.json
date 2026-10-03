@@ -1,0 +1,104 @@
+{
+  "_about": "Cross-language canonical_receipt_bytes parity vectors (Quesen Upgrade P0.2). Preimage = ordered subset {decision,input_snapshot_hash,commit_sha,reasons}, compact JSON, UTF-8, keys NOT sorted. Non-signed fields (latency_ms,request_id,risk_score,...) MUST be excluded. quesen/tsc/signing.canonical_receipt_bytes, quesen_sdk.receipt.canonical_receipt_bytes, and quesen-sdk-js canonicalReceiptBytes MUST all reproduce canonical_bytes_utf8 byte-for-byte.",
+  "signed_fields": [
+    "decision",
+    "input_snapshot_hash",
+    "commit_sha",
+    "reasons"
+  ],
+  "vectors": [
+    {
+      "name": "pass_with_reasons",
+      "receipt": {
+        "decision": "PASS",
+        "input_snapshot_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "commit_sha": "deadbeef",
+        "reasons": [
+          {
+            "code": "OK_LOW_RISK",
+            "severity": "info"
+          }
+        ],
+        "latency_ms": 12,
+        "request_id": "ignore-me"
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"PASS\",\"input_snapshot_hash\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"commit_sha\":\"deadbeef\",\"reasons\":[{\"code\":\"OK_LOW_RISK\",\"severity\":\"info\"}]}",
+      "sha256_canonical_bytes": "bbbb3559ea87886c9a74a8c9973e0b2fbe70966ddcbd83ee897abfb7e00486ae"
+    },
+    {
+      "name": "block_multi_reason",
+      "receipt": {
+        "decision": "BLOCK",
+        "input_snapshot_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "commit_sha": "c0ffee11",
+        "reasons": [
+          {
+            "code": "EGRESS_UNAUTHORIZED"
+          },
+          {
+            "code": "SECRET_IN_PAYLOAD"
+          }
+        ]
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"BLOCK\",\"input_snapshot_hash\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"commit_sha\":\"c0ffee11\",\"reasons\":[{\"code\":\"EGRESS_UNAUTHORIZED\"},{\"code\":\"SECRET_IN_PAYLOAD\"}]}",
+      "sha256_canonical_bytes": "e24d70707a16e29bc5189c509b6493afb3ca52aa713a15f72b354bc7553ee962"
+    },
+    {
+      "name": "review_unicode",
+      "receipt": {
+        "decision": "REVIEW",
+        "input_snapshot_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "commit_sha": "abc123",
+        "reasons": [
+          {
+            "code": "NAME_MISMATCH",
+            "detail": "café → naïve ☕"
+          }
+        ]
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"REVIEW\",\"input_snapshot_hash\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"commit_sha\":\"abc123\",\"reasons\":[{\"code\":\"NAME_MISMATCH\",\"detail\":\"café → naïve ☕\"}]}",
+      "sha256_canonical_bytes": "2a063ff9920bc15e18814af943c6fd8dafdb098c10978aa50784380fbc3ce8b7"
+    },
+    {
+      "name": "skip_empty_reasons",
+      "receipt": {
+        "decision": "SKIP",
+        "input_snapshot_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "commit_sha": "0001",
+        "reasons": []
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"SKIP\",\"input_snapshot_hash\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"commit_sha\":\"0001\",\"reasons\":[]}",
+      "sha256_canonical_bytes": "2a7ec56296289d7fe5f338b83964bb97a27526c3413f97cb9b786dd5c0bc7b70"
+    },
+    {
+      "name": "missing_commit_sha",
+      "receipt": {
+        "decision": "PASS",
+        "input_snapshot_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "reasons": [
+          {
+            "code": "OK"
+          }
+        ]
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"PASS\",\"input_snapshot_hash\":\"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\",\"reasons\":[{\"code\":\"OK\"}]}",
+      "sha256_canonical_bytes": "6e9e529903b64e5e26a9b2ac3b58bd1dcb1f3fedd54647e30a0683949b031cb5"
+    },
+    {
+      "name": "v1_proceed",
+      "receipt": {
+        "decision": "PROCEED",
+        "input_snapshot_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "commit_sha": "unknown",
+        "reasons": [
+          {
+            "code": "OK_V1"
+          }
+        ],
+        "risk_score": 0.1
+      },
+      "canonical_bytes_utf8": "{\"decision\":\"PROCEED\",\"input_snapshot_hash\":\"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\",\"commit_sha\":\"unknown\",\"reasons\":[{\"code\":\"OK_V1\"}]}",
+      "sha256_canonical_bytes": "7761f48c6109871d481669c2443fc5991a9c320c595ba1eee28bbbbb124b8269"
+    }
+  ]
+}
