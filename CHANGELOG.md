@@ -4,6 +4,20 @@ All notable changes to `quesen-sdk` (JavaScript / TypeScript) will be documented
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] — 2026-10-03 · Admissibility (constraint-bound authority · ADR-052)
+
+### Added
+- **`admissibility.ts`** — `checkAdmissibility(grant, action)` decides whether a specific
+  action is within a *bounded* authority grant (`allowed_actions`/`allowed_targets`/
+  `allowed_currencies`/`max_amount`/`max_qty`), returning `admissible` + a sorted set of
+  violation codes. Fail-closed; **no floats in money comparison** — uses the same portable
+  decimal-string compare as the engine and Python SDK so results are byte-identical. Also
+  `grantHash`, `canonicalGrantBytes`, `admissibilityEvidence`. Shared conformance fixture
+  (`tests/fixtures/admissibility.json`) arbiter-checks cross-language agreement.
+
+### Notes
+- Strictly additive, zero runtime deps. Tracks engine `quesen.evidence.admissibility`.
+
 ## [0.6.0] — 2026-09-05 · Offline verdict replay (recomputability before adoption)
 
 ### Added

@@ -88,6 +88,14 @@ export {
 } from "./execution.js";
 export type { BindingVerification } from "./execution.js";
 export {
+  GRANT_FIELDS,
+  canonicalGrantBytes,
+  grantHash,
+  checkAdmissibility,
+  admissibilityEvidence,
+} from "./admissibility.js";
+export type { AdmissibilityResult } from "./admissibility.js";
+export {
   evaluate as referenceEvaluate,
   normalize as referenceNormalize,
   canonicalJson as referenceCanonicalJson,
@@ -97,4 +105,4 @@ export {
 } from "./reference.js";
 export type { ReferenceResult } from "./reference.js";
 
-export const VERSION = "0.7.0";
+export const VERSION = "0.8.0";

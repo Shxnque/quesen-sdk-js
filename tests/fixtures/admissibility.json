@@ -1,0 +1,272 @@
+{
+  "_about": "Admissibility (ADR-052, Directive §9/§6) cross-language vectors. A grant is a bounded authority; check_admissibility decides if a specific action falls within it. grant canonical bytes = Rule-A canonical JSON (recursive key-sort, compact, UTF-8, null-omitted). Decimal amounts compared with a no-float portable algorithm. Engine quesen.evidence.admissibility, python quesen_sdk.admissibility, and JS admissibility.ts MUST all reproduce admissible+violations+hashes identically.",
+  "grant_fields": [
+    "allowed_actions",
+    "allowed_targets",
+    "allowed_currencies",
+    "max_amount",
+    "max_qty"
+  ],
+  "violation_codes": [
+    "ACTION_NOT_ALLOWED",
+    "TARGET_NOT_ALLOWED",
+    "CURRENCY_REQUIRED",
+    "CURRENCY_NOT_ALLOWED",
+    "AMOUNT_REQUIRED",
+    "AMOUNT_MALFORMED",
+    "AMOUNT_EXCEEDS_MAX",
+    "QTY_REQUIRED",
+    "QTY_MALFORMED",
+    "QTY_EXCEEDS_MAX"
+  ],
+  "vectors": [
+    {
+      "name": "within_bounds",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "amount": "4999.99",
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": true,
+        "violations": [],
+        "action_hash": "sha256:1123033f4fe1f5cdc386adfb2e16efa2dc7cbe68b6e8a00e818336670201a77a"
+      }
+    },
+    {
+      "name": "operator_example_vendor_b_over",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-b.example/api",
+        "parameters": {
+          "amount": "8000",
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "AMOUNT_EXCEEDS_MAX",
+          "TARGET_NOT_ALLOWED"
+        ],
+        "action_hash": "sha256:dafa4fab986cb7f93cd2de2df0f392c16175525aa6333eab1a2abae8cc1055e6"
+      }
+    },
+    {
+      "name": "boundary_equal_admissible",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "amount": "5000.00",
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": true,
+        "violations": [],
+        "action_hash": "sha256:95266f951cb6fdaa9ae9a529da0ea61b1d4ddec76d304a2059104315db326a48"
+      }
+    },
+    {
+      "name": "just_over_cap",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "amount": "5000.01",
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "AMOUNT_EXCEEDS_MAX"
+        ],
+        "action_hash": "sha256:f880e199392eab201a128f3ac500590841af28c855fce17a5b7c83f7dc384e80"
+      }
+    },
+    {
+      "name": "action_not_allowed",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "data.delete",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "amount": "1",
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "ACTION_NOT_ALLOWED"
+        ],
+        "action_hash": "sha256:8b84eac0ee0c676234490f585caa4c89fd01b40d6065e87c597a86dbbaebdec1"
+      }
+    },
+    {
+      "name": "currency_not_allowed",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "amount": "1",
+          "currency": "EUR"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "CURRENCY_NOT_ALLOWED"
+        ],
+        "action_hash": "sha256:e40094a37ed104dab9edb73a4a83599dde6cfcce73be51ec05a25b41fda0babe"
+      }
+    },
+    {
+      "name": "amount_required_failclosed",
+      "grant": {
+        "allowed_actions": [
+          "payment.execute"
+        ],
+        "allowed_targets": [
+          "https://vendor-a.example/api"
+        ],
+        "allowed_currencies": [
+          "USDC"
+        ],
+        "max_amount": "5000.00"
+      },
+      "action": {
+        "action": "payment.execute",
+        "target": "https://vendor-a.example/api",
+        "parameters": {
+          "currency": "USDC"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"payment.execute\"],\"allowed_currencies\":[\"USDC\"],\"allowed_targets\":[\"https://vendor-a.example/api\"],\"max_amount\":\"5000.00\"}",
+      "grant_hash": "sha256:54020f407615c26e701d0da64b4464007b620bd3da8d7935633f95fb7d7fd498",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "AMOUNT_REQUIRED"
+        ],
+        "action_hash": "sha256:2973906b53c4ea94f8243f39dd0197cc494583f0ee8e0febf9d8b937526c9fc7"
+      }
+    },
+    {
+      "name": "max_qty_and_amount",
+      "grant": {
+        "allowed_actions": [
+          "tool.call"
+        ],
+        "max_qty": 10,
+        "max_amount": "100"
+      },
+      "action": {
+        "action": "tool.call",
+        "target": "fs.write",
+        "parameters": {
+          "qty": 11,
+          "amount": "250"
+        }
+      },
+      "grant_canonical_bytes_utf8": "{\"allowed_actions\":[\"tool.call\"],\"max_amount\":\"100\",\"max_qty\":10}",
+      "grant_hash": "sha256:8fb514e0a40c9ecf0a1ef49eb0bbf0d4b5a90be81ffb30c77201021e88f8fcc7",
+      "expected": {
+        "admissible": false,
+        "violations": [
+          "AMOUNT_EXCEEDS_MAX",
+          "QTY_EXCEEDS_MAX"
+        ],
+        "action_hash": "sha256:431871d7b938d23b45ed93045e69eb33c0ea41eb87a6d496db77d5c422115c80"
+      }
+    }
+  ]
+}
