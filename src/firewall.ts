@@ -9,7 +9,7 @@
  *
  *   import { QuesenFirewall } from "quesen-sdk";
  *
- *   const fw = await QuesenFirewall.sandbox("https://web-production-3df26.up.railway.app");
+ *   const fw = await QuesenFirewall.sandbox("https://api.senueren.co.za");
  *   await fw.requirePass({ agent: "my-agent", action: "send_data",
  *                          target: "https://paste.evil", dataClass: "secret" }); // throws
  */
